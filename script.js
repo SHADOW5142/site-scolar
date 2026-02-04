@@ -519,6 +519,14 @@ async function loginAdmin() {
         isAdmin = true;
         sessionStorage.setItem('isAdmin', '1');
         toggleAdminUI();
+        
+        // Reafishează clasa curentă pentru a reface event listener-ii de editare
+        const activeClass = document.querySelector('.class-section.active');
+        if (activeClass) {
+            const classId = activeClass.id;
+            renderCurrentClass(classId);
+        }
+        
         alert('Autentificare reușită.');
     } else {
         alert('Parola incorectă.');
