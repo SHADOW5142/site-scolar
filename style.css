@@ -180,6 +180,20 @@ body {
     gap: 12px;
     align-items: center;
 }
+.admin-panel {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 0 0 12px 0;
+}
+
+/* admin-only elements are hidden unless body has .admin */
+.admin-only { display: none; }
+body.admin .admin-only { display: flex; }
+
+/* hide edit buttons unless admin */
+.edit-btn { display: none; }
+body.admin .edit-btn { display: inline-block; }
 .add-student-panel h3 {
     color: white;
     font-size: 1.1em;

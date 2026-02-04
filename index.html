@@ -26,8 +26,16 @@
             <button class="nav-btn" data-class="clasa-12">Clasa 12</button>
         </nav>
 
-        <!-- Panou Adaugare Elev -->
-        <div class="add-student-panel">
+        <!-- Panou Admin -->
+        <div class="admin-panel">
+            <button id="setPasswordBtn" class="btn">Setează parolă admin</button>
+            <button id="loginBtn" class="btn">Loghează-te</button>
+            <button id="logoutBtn" class="btn" style="display:none;">Deloghează</button>
+            <button id="changePasswordBtn" class="btn" style="display:none;">Schimbă parola</button>
+        </div>
+
+        <!-- Panou Adaugare Elev (vizibil doar pentru admin) -->
+        <div class="add-student-panel admin-only">
             <h3>Adaugă elev</h3>
             <form id="addStudentForm">
                 <div class="form-row">

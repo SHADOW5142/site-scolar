@@ -488,6 +488,87 @@ let currentEditingSection = null;
 let currentProfile = { 'clasa-10': 'umanist', 'clasa-11': 'umanist', 'clasa-12': 'umanist' };
 let currentSection = {}; // map: classId -> section letter (A/B/C)
 
+// Admin / autentificare (client-side)
+let isAdmin = false;
+
+async function hashString(str) {
+    const enc = new TextEncoder();
+    const data = enc.encode(str);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function setAdminPassword() {
+    const p1 = prompt('Setează parola admin:');
+    if (!p1) return alert('Parola nu poate fi goală.');
+    const p2 = prompt('Confirmă parola admin:');
+    if (p1 !== p2) return alert('Parolele nu coincid.');
+    const h = await hashString(p1);
+    localStorage.setItem('siteAdminHash', h);
+    alert('Parola a fost setată.');
+}
+
+async function loginAdmin() {
+    const p = prompt('Parola admin:');
+    if (!p) return;
+    const h = await hashString(p);
+    const stored = localStorage.getItem('siteAdminHash');
+    if (!stored) return alert('Parola nu este setată. Folosește "Setează parolă admin".');
+    if (h === stored) {
+        isAdmin = true;
+        sessionStorage.setItem('isAdmin', '1');
+        toggleAdminUI();
+        alert('Autentificare reușită.');
+    } else {
+        alert('Parola incorectă.');
+    }
+}
+
+function logoutAdmin() {
+    isAdmin = false;
+    sessionStorage.removeItem('isAdmin');
+    toggleAdminUI();
+}
+
+async function changeAdminPassword() {
+    const stored = localStorage.getItem('siteAdminHash');
+    if (!stored) return alert('Parola nu este setată.');
+    const oldp = prompt('Parola curentă:');
+    if (!oldp) return;
+    const oldh = await hashString(oldp);
+    if (oldh !== stored) return alert('Parola curentă incorectă.');
+    const np1 = prompt('Parola nouă:');
+    if (!np1) return alert('Parola nu poate fi goală.');
+    const np2 = prompt('Confirmă parola nouă:');
+    if (np1 !== np2) return alert('Parolele nu coincid.');
+    const nh = await hashString(np1);
+    localStorage.setItem('siteAdminHash', nh);
+    alert('Parola a fost schimbată.');
+}
+
+function toggleAdminUI() {
+    const body = document.body;
+    const setBtn = document.getElementById('setPasswordBtn');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const changeBtn = document.getElementById('changePasswordBtn');
+    if (isAdmin) {
+        body.classList.add('admin');
+        setBtn.style.display = 'none';
+        loginBtn.style.display = 'none';
+        logoutBtn.style.display = 'inline-block';
+        changeBtn.style.display = 'inline-block';
+    } else {
+        body.classList.remove('admin');
+        setBtn.style.display = localStorage.getItem('siteAdminHash') ? 'none' : 'inline-block';
+        loginBtn.style.display = localStorage.getItem('siteAdminHash') ? 'inline-block' : 'none';
+        logoutBtn.style.display = 'none';
+        changeBtn.style.display = 'none';
+    }
+}
+
+
 // Helper: secțiuni disponibile per clasă
 function getSectionsForClass(classId) {
     if (classId.includes('10') || classId.includes('11') || classId.includes('12')) {
@@ -678,6 +759,22 @@ function setupEventListeners() {
         }
     });
 
+    // Admin buttons
+    const setPasswordBtn = document.getElementById('setPasswordBtn');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const changePasswordBtn = document.getElementById('changePasswordBtn');
+    if (setPasswordBtn) setPasswordBtn.addEventListener('click', () => setAdminPassword());
+    if (loginBtn) loginBtn.addEventListener('click', () => loginAdmin());
+    if (logoutBtn) logoutBtn.addEventListener('click', () => logoutAdmin());
+    if (changePasswordBtn) changePasswordBtn.addEventListener('click', () => changeAdminPassword());
+
+    // restore admin session if present
+    if (sessionStorage.getItem('isAdmin')) {
+        isAdmin = true;
+    }
+    toggleAdminUI();
+
     // Modal
     const modal = document.getElementById('editModal');
     const closeBtn = document.querySelector('.close');
@@ -788,12 +885,15 @@ function renderStudents(dataKey, subject, containerId) {
             <button class="edit-btn">✏️ Editează</button>
         `;
 
-        studentElement.querySelector('.edit-btn').addEventListener('click', () => {
-            // Extragem classId din containerId (ex: clasa-5-romana)
-            const classId = containerId.split('-').slice(0,2).join('-');
-            const sec = currentSection[classId] || 'A';
-            openEditModal(classId, sec, subject, index, student);
-        });
+        const editBtn = studentElement.querySelector('.edit-btn');
+        if (isAdmin) {
+            editBtn.addEventListener('click', () => {
+                // Extragem classId din containerId (ex: clasa-5-romana)
+                const classId = containerId.split('-').slice(0,2).join('-');
+                const sec = currentSection[classId] || 'A';
+                openEditModal(classId, sec, subject, index, student);
+            });
+        }
 
         container.appendChild(studentElement);
     });
@@ -816,6 +916,7 @@ function openEditModal(classId, section, subject, index, student) {
 
 // Salvează nota editată
 function saveEditedGrade() {
+    if (!isAdmin) { alert('Doar admin poate modifica datele.'); return; }
     const newName = document.getElementById('studentName').value.trim();
     const newGrade = parseFloat(document.getElementById('gradeValue').value);
     const newTheme = document.getElementById('themeValue').value.trim();
