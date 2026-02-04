@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Școlar - Note Elevi</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>📚 Platforma Școlară</h1>
+            <p class="subtitle">Gestionare Note Elevi</p>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav">
+            <button class="nav-btn active" data-class="clasa-5">Clasa 5</button>
+            <button class="nav-btn" data-class="clasa-6">Clasa 6</button>
+            <button class="nav-btn" data-class="clasa-7">Clasa 7</button>
+            <button class="nav-btn" data-class="clasa-8">Clasa 8</button>
+            <button class="nav-btn" data-class="clasa-9">Clasa 9</button>
+            <button class="nav-btn" data-class="clasa-10">Clasa 10</button>
+            <button class="nav-btn" data-class="clasa-11">Clasa 11</button>
+            <button class="nav-btn" data-class="clasa-12">Clasa 12</button>
+        </nav>
+
+        <!-- Panou Adaugare Elev -->
+        <div class="add-student-panel">
+            <h3>Adaugă elev</h3>
+            <form id="addStudentForm">
+                <div class="form-row">
+                    <select id="addClassSelect"></select>
+                    <select id="addSectionSelect"></select>
+                    <select id="addSubjectSelect"></select>
+                </div>
+                <div class="form-row">
+                    <input type="text" id="addStudentName" placeholder="Nume Prenume" required>
+                    <input type="text" id="addTheme" placeholder="Tema" required>
+                    <input type="number" id="addGrade" min="1" max="10" step="0.5" placeholder="Nota" required>
+                </div>
+                <button type="submit" class="btn btn-save">Adaugă elev</button>
+            </form>
+        </div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Clasa 5 -->
+            <section class="class-section active" id="clasa-5">
+                <h2>Clasa a 5-a</h2>
+                <div class="section-selector"></div>
+                <div class="subjects-grid">
+                    <div class="subject-card">
+                        <h3>📖 Limba Română</h3>
+                        <div class="students-list" id="clasa-5-romana"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🔤 Limba Engleză</h3>
+                        <div class="students-list" id="clasa-5-engleza"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>✏️ Matematică</h3>
+                        <div class="students-list" id="clasa-5-matematica"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>⚗️ Chimie</h3>
+                        <div class="students-list" id="clasa-5-chimie"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🔬 Biologie</h3>
+                        <div class="students-list" id="clasa-5-biologie"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🌍 Geografie</h3>
+                        <div class="students-list" id="clasa-5-geografie"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>⏰ Istorie</h3>
+                        <div class="students-list" id="clasa-5-istorie"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Clasa 6 -->
+            <section class="class-section" id="clasa-6">
+                <h2>Clasa a 6-a</h2>
+                <div class="section-selector"></div>
+                <div class="subjects-grid">
+                    <div class="subject-card">
+                        <h3>📖 Limba Română</h3>
+                        <div class="students-list" id="clasa-6-romana"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🔤 Limba Engleză</h3>
+                        <div class="students-list" id="clasa-6-engleza"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>✏️ Matematică</h3>
+                        <div class="students-list" id="clasa-6-matematica"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>⚗️ Chimie</h3>
+                        <div class="students-list" id="clasa-6-chimie"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🔬 Biologie</h3>
+                        <div class="students-list" id="clasa-6-biologie"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🌍 Geografie</h3>
+                        <div class="students-list" id="clasa-6-geografie"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>⏰ Istorie</h3>
+                        <div class="students-list" id="clasa-6-istorie"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Clasa 7 -->
+            <section class="class-section" id="clasa-7">
+                <h2>Clasa a 7-a</h2>
+                <div class="section-selector"></div>
+                <div class="subjects-grid">
+                    <div class="subject-card">
+                        <h3>📖 Limba Română</h3>
+                        <div class="students-list" id="clasa-7-romana"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🔤 Limba Engleză</h3>
+                        <div class="students-list" id="clasa-7-engleza"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>✏️ Matematică</h3>
+                        <div class="students-list" id="clasa-7-matematica"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>⚗️ Chimie</h3>
+                        <div class="students-list" id="clasa-7-chimie"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🔬 Biologie</h3>
+                        <div class="students-list" id="clasa-7-biologie"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🌍 Geografie</h3>
+                        <div class="students-list" id="clasa-7-geografie"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>⏰ Istorie</h3>
+                        <div class="students-list" id="clasa-7-istorie"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Clasa 8 -->
+            <section class="class-section" id="clasa-8">
+                <h2>Clasa a 8-a</h2>
+                <div class="section-selector"></div>
+                <div class="subjects-grid">
+                    <div class="subject-card">
+                        <h3>📖 Limba Română</h3>
+                        <div class="students-list" id="clasa-8-romana"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🔤 Limba Engleză</h3>
+                        <div class="students-list" id="clasa-8-engleza"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>✏️ Matematică</h3>
+                        <div class="students-list" id="clasa-8-matematica"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>⚗️ Chimie</h3>
+                        <div class="students-list" id="clasa-8-chimie"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🔬 Biologie</h3>
+                        <div class="students-list" id="clasa-8-biologie"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🌍 Geografie</h3>
+                        <div class="students-list" id="clasa-8-geografie"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>⏰ Istorie</h3>
+                        <div class="students-list" id="clasa-8-istorie"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Clasa 9 -->
+            <section class="class-section" id="clasa-9">
+                <h2>Clasa a 9-a</h2>
+                <div class="section-selector"></div>
+                <div class="subjects-grid">
+                    <div class="subject-card">
+                        <h3>📖 Limba Română</h3>
+                        <div class="students-list" id="clasa-9-romana"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🔤 Limba Engleză</h3>
+                        <div class="students-list" id="clasa-9-engleza"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🇫🇷 Limba Franceză</h3>
+                        <div class="students-list" id="clasa-9-franceza"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>✏️ Matematică</h3>
+                        <div class="students-list" id="clasa-9-matematica"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>⚗️ Chimie</h3>
+                        <div class="students-list" id="clasa-9-chimie"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🔬 Biologie</h3>
+                        <div class="students-list" id="clasa-9-biologie"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🌍 Geografie</h3>
+                        <div class="students-list" id="clasa-9-geografie"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>⏰ Istorie</h3>
+                        <div class="students-list" id="clasa-9-istorie"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Clasa 10 -->
+            <section class="class-section" id="clasa-10">
+                <h2>Clasa a 10-a</h2>
+                <div class="section-selector"></div>
+                <div class="profile-selector">
+                    <button class="profile-btn active" data-profile="umanist" data-class="clasa-10">Profil Umanist</button>
+                    <button class="profile-btn" data-profile="real" data-class="clasa-10">Profil Real</button>
+                </div>
+                <div class="subjects-grid">
+                    <div class="subject-card">
+                        <h3>📖 Limba Română</h3>
+                        <div class="students-list" id="clasa-10-romana"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🔤 Limba Engleză</h3>
+                        <div class="students-list" id="clasa-10-engleza"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🇫🇷 Limba Franceză</h3>
+                        <div class="students-list" id="clasa-10-franceza"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>✏️ Matematică</h3>
+                        <div class="students-list" id="clasa-10-matematica"></div>
+                    </div>
+                    <div class="subject-card umanist-only" style="display: none;">
+                        <h3>📚 Literatura Universală</h3>
+                        <div class="students-list" id="clasa-10-literatura"></div>
+                    </div>
+                    <div class="subject-card real-only" style="display: none;">
+                        <h3>⚛️ Fizică</h3>
+                        <div class="students-list" id="clasa-10-fizica"></div>
+                    </div>
+                    <div class="subject-card real-only" style="display: none;">
+                        <h3>⚗️ Chimie</h3>
+                        <div class="students-list" id="clasa-10-chimie"></div>
+                    </div>
+                    <div class="subject-card real-only" style="display: none;">
+                        <h3>🔬 Biologie</h3>
+                        <div class="students-list" id="clasa-10-biologie"></div>
+                    </div>
+                    <div class="subject-card real-only" style="display: none;">
+                        <h3>💻 Informatică</h3>
+                        <div class="students-list" id="clasa-10-informatica"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🌍 Geografie</h3>
+                        <div class="students-list" id="clasa-10-geografie"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>⏰ Istorie</h3>
+                        <div class="students-list" id="clasa-10-istorie"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Clasa 11 -->
+            <section class="class-section" id="clasa-11">
+                <h2>Clasa a 11-a</h2>
+                <div class="section-selector"></div>
+                <div class="profile-selector">
+                    <button class="profile-btn active" data-profile="umanist" data-class="clasa-11">Profil Umanist</button>
+                    <button class="profile-btn" data-profile="real" data-class="clasa-11">Profil Real</button>
+                </div>
+                <div class="subjects-grid">
+                    <div class="subject-card">
+                        <h3>📖 Limba Română</h3>
+                        <div class="students-list" id="clasa-11-romana"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🔤 Limba Engleză</h3>
+                        <div class="students-list" id="clasa-11-engleza"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🇫🇷 Limba Franceză</h3>
+                        <div class="students-list" id="clasa-11-franceza"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>✏️ Matematică</h3>
+                        <div class="students-list" id="clasa-11-matematica"></div>
+                    </div>
+                    <div class="subject-card umanist-only" style="display: none;">
+                        <h3>📚 Literatura Universală</h3>
+                        <div class="students-list" id="clasa-11-literatura"></div>
+                    </div>
+                    <div class="subject-card real-only" style="display: none;">
+                        <h3>⚛️ Fizică</h3>
+                        <div class="students-list" id="clasa-11-fizica"></div>
+                    </div>
+                    <div class="subject-card real-only" style="display: none;">
+                        <h3>⚗️ Chimie</h3>
+                        <div class="students-list" id="clasa-11-chimie"></div>
+                    </div>
+                    <div class="subject-card real-only" style="display: none;">
+                        <h3>🔬 Biologie</h3>
+                        <div class="students-list" id="clasa-11-biologie"></div>
+                    </div>
+                    <div class="subject-card real-only" style="display: none;">
+                        <h3>💻 Informatică</h3>
+                        <div class="students-list" id="clasa-11-informatica"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🌍 Geografie</h3>
+                        <div class="students-list" id="clasa-11-geografie"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>⏰ Istorie</h3>
+                        <div class="students-list" id="clasa-11-istorie"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Clasa 12 -->
+            <section class="class-section" id="clasa-12">
+                <h2>Clasa a 12-a</h2>
+                <div class="section-selector"></div>
+                <div class="profile-selector">
+                    <button class="profile-btn active" data-profile="umanist" data-class="clasa-12">Profil Umanist</button>
+                    <button class="profile-btn" data-profile="real" data-class="clasa-12">Profil Real</button>
+                </div>
+                <div class="subjects-grid">
+                    <div class="subject-card">
+                        <h3>📖 Limba Română</h3>
+                        <div class="students-list" id="clasa-12-romana"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🔤 Limba Engleză</h3>
+                        <div class="students-list" id="clasa-12-engleza"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🇫🇷 Limba Franceză</h3>
+                        <div class="students-list" id="clasa-12-franceza"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>✏️ Matematică</h3>
+                        <div class="students-list" id="clasa-12-matematica"></div>
+                    </div>
+                    <div class="subject-card umanist-only" style="display: none;">
+                        <h3>📚 Literatura Universală</h3>
+                        <div class="students-list" id="clasa-12-literatura"></div>
+                    </div>
+                    <div class="subject-card real-only" style="display: none;">
+                        <h3>⚛️ Fizică</h3>
+                        <div class="students-list" id="clasa-12-fizica"></div>
+                    </div>
+                    <div class="subject-card real-only" style="display: none;">
+                        <h3>⚗️ Chimie</h3>
+                        <div class="students-list" id="clasa-12-chimie"></div>
+                    </div>
+                    <div class="subject-card real-only" style="display: none;">
+                        <h3>🔬 Biologie</h3>
+                        <div class="students-list" id="clasa-12-biologie"></div>
+                    </div>
+                    <div class="subject-card real-only" style="display: none;">
+                        <h3>💻 Informatică</h3>
+                        <div class="students-list" id="clasa-12-informatica"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>🌍 Geografie</h3>
+                        <div class="students-list" id="clasa-12-geografie"></div>
+                    </div>
+                    <div class="subject-card">
+                        <h3>⏰ Istorie</h3>
+                        <div class="students-list" id="clasa-12-istorie"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 Platforma Școlară. Toate drepturile rezervate.</p>
+        </footer>
+    </div>
+
+    <!-- Modal pentru editare -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Editare Date Elev</h2>
+            <form id="editForm">
+                <div class="form-group">
+                    <label>Nume și Prenume:</label>
+                    <input type="text" id="studentName" required>
+                </div>
+                <div class="form-group">
+                    <label>Materie:</label>
+                    <input type="text" id="subjectName" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Nota:</label>
+                    <input type="number" id="gradeValue" min="1" max="10" step="0.5" required>
+                </div>
+                <div class="form-group">
+                    <label>Temă:</label>
+                    <input type="text" id="themeValue" required>
+                </div>
+                <button type="submit" class="btn btn-save">Salvează</button>
+                <button type="button" class="btn btn-cancel">Anulează</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
