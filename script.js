@@ -520,7 +520,9 @@ async function setAdminPassword() {
         
         if (response.ok) {
             localStorage.setItem('siteAdminHash', h); // Backup local
+            hasAdminPassword = true; // Update flag
             alert('Parola a fost setată.');
+            toggleAdminUI(); // Update UI
         }
     } catch (error) {
         console.error('Error setting password:', error);
@@ -654,7 +656,9 @@ function toggleAdminUI() {
     const changeBtn = document.getElementById('changePasswordBtn');
     const adminAuth = document.querySelector('.admin-auth');
     const adminBackup = document.querySelector('.admin-backup');
+    
     if (isAdmin) {
+        // User is logged in as admin
         body.classList.add('admin');
         adminAuth.style.display = 'flex';
         setBtn.style.display = 'none';
@@ -663,10 +667,20 @@ function toggleAdminUI() {
         changeBtn.style.display = 'inline-block';
         adminBackup.style.display = 'flex';
     } else {
+        // User is NOT logged in
         body.classList.remove('admin');
         adminAuth.style.display = 'flex';
-        setBtn.style.display = localStorage.getItem('siteAdminHash') ? 'none' : 'inline-block';
-        loginBtn.style.display = localStorage.getItem('siteAdminHash') ? 'inline-block' : 'none';
+        
+        // Dacă există parolă în DB/localStorage, arată doar Login
+        if (hasAdminPassword) {
+            setBtn.style.display = 'none';
+            loginBtn.style.display = 'inline-block';
+        } else {
+            // Dacă NU există parolă, arată doar Set Password
+            setBtn.style.display = 'inline-block';
+            loginBtn.style.display = 'none';
+        }
+        
         logoutBtn.style.display = 'none';
         changeBtn.style.display = 'none';
         adminBackup.style.display = 'none';
