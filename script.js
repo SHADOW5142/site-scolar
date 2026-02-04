@@ -723,6 +723,25 @@ async function loadDataFromStorage() {
     if (storedProfile) {
         currentProfile = JSON.parse(storedProfile);
     }
+    
+    // Încarcă admin settings
+    await loadAdminSettings();
+}
+
+// Încarcă setările admin din API sau localStorage
+async function loadAdminSettings() {
+    try {
+        const response = await fetch(`${API_URL}/api/admin/settings`);
+        if (response.ok) {
+            const settings = await response.json();
+            if (settings.passwordHash) {
+                // Salvează în localStorage pentru fallback
+                localStorage.setItem('siteAdminHash', settings.passwordHash);
+            }
+        }
+    } catch (error) {
+        console.log('API not available for admin settings, using localStorage');
+    }
 }
 
 // Salvează datele (nu mai e necesar cu API, dar menține pentru fallback)
@@ -982,9 +1001,6 @@ function setupEventListeners() {
     if (sessionStorage.getItem('isAdmin')) {
         isAdmin = true;
     }
-    
-    // Check if password exists on API
-    fetch(`${API_URL}/api/admin/settings`).catch(err => console.log('API not available'));
     
     toggleAdminUI();
 
