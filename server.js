@@ -8,8 +8,13 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// Middleware CORS - permite toate originile pentru development și production
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: false
+}));
 app.use(express.json());
 app.use(express.static(__dirname));
 
