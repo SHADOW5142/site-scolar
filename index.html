@@ -35,10 +35,15 @@
                 <button id="changePasswordBtn" class="btn" style="display:none;">Schimbă parola</button>
             </div>
             <div class="admin-backup" style="display:none;">
-                <button id="exportCsvBtn" class="btn">📥 Exportă CSV</button>
-                <button id="importCsvBtn" class="btn">📤 Importă CSV</button>
-                <button id="clearDataBtn" class="btn btn-danger">🗑️ Șterge date</button>
+                <div style="display:flex; gap: 5px; flex-wrap: wrap;">
+                    <button id="exportCsvBtn" class="btn">📥 Exportă CSV</button>
+                    <button id="importCsvBtn" class="btn">📤 Importă CSV</button>
+                    <button id="exportAdminBtn" class="btn">🔐 Exportă Parolă</button>
+                    <button id="importAdminBtn" class="btn">🔑 Importă Parolă</button>
+                    <button id="clearDataBtn" class="btn btn-danger">🗑️ Șterge date</button>
+                </div>
                 <input type="file" id="csvFileInput" accept=".csv" style="display:none;">
+                <input type="file" id="adminFileInput" accept=".json" style="display:none;">
             </div>
         </div>
 

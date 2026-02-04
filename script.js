@@ -539,6 +539,36 @@ function logoutAdmin() {
     toggleAdminUI();
 }
 
+// Export Admin Password Settings
+function exportAdminSettings() {
+    const stored = localStorage.getItem('siteAdminHash');
+    if (!stored) {
+        alert('Nu ai setat o parolă admin pentru a exporta.');
+        return;
+    }
+    
+    const settings = {
+        siteAdminHash: stored,
+        exportDate: new Date().toISOString()
+    };
+    
+    const json = JSON.stringify(settings, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `admin-settings-${new Date().getTime()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// Import Admin Password Settings
+function importAdminSettings() {
+    const input = document.getElementById('adminFileInput');
+    input.click();
+}
+
+// Handler pentru import admin settings
 // Export CSV
 function exportToCSV() {
     let csvContent = 'Clasa,Secțiune,Materie,Nume Elev,Tema,Nota\n';
@@ -839,6 +869,10 @@ function setupEventListeners() {
     if (changePasswordBtn) changePasswordBtn.addEventListener('click', () => changeAdminPassword());
     if (exportCsvBtn) exportCsvBtn.addEventListener('click', () => exportToCSV());
     if (importCsvBtn) importCsvBtn.addEventListener('click', () => importFromCSV());
+    const exportAdminBtn = document.getElementById('exportAdminBtn');
+    const importAdminBtn = document.getElementById('importAdminBtn');
+    if (exportAdminBtn) exportAdminBtn.addEventListener('click', () => exportAdminSettings());
+    if (importAdminBtn) importAdminBtn.addEventListener('click', () => importAdminSettings());
     if (clearDataBtn) clearDataBtn.addEventListener('click', () => clearAllData());
     
     if (csvFileInput) {
@@ -875,6 +909,32 @@ function setupEventListeners() {
                     const activeClass = document.querySelector('.nav-btn.active');
                     if (activeClass) renderCurrentClass(activeClass.dataset.class);
                     alert('Datele au fost importate cu succes.');
+                }
+            };
+            reader.readAsText(file);
+        });
+    }
+
+    const adminFileInput = document.getElementById('adminFileInput');
+    if (adminFileInput) {
+        adminFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const settings = JSON.parse(event.target.result);
+                    if (!settings.siteAdminHash) {
+                        alert('Format nevalid: lipsește siteAdminHash');
+                        return;
+                    }
+                    
+                    localStorage.setItem('siteAdminHash', settings.siteAdminHash);
+                    alert('Parola admin importată cu succes! Reîncarcă pagina.');
+                    location.reload();
+                } catch (err) {
+                    alert('Eroare la parsarea fișierului: ' + err.message);
                 }
             };
             reader.readAsText(file);
