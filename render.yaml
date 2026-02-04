@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: site-scolar-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGO_URI
+        scope: build
+        value: mongodb+srv://vladw239_db_user:HklumfcDupio1Uxi@daniel.f39b4vd.mongodb.net/site_scolar
+      - key: PORT
+        value: 5000
