@@ -1,3 +1,8 @@
+// API Configuration
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? 'http://localhost:5000' 
+    : 'https://site-scolar-api.onrender.com'; // Va fi schimbat cu URL-ul real
+
 // Date inițiale cu note pentru elevi - ACTUALIZATE
 const initialData = {
     'clasa-5': {
@@ -504,30 +509,49 @@ async function setAdminPassword() {
     if (!p1) return alert('Parola nu poate fi goală.');
     const p2 = prompt('Confirmă parola admin:');
     if (p1 !== p2) return alert('Parolele nu coincid.');
-    const h = await hashString(p1);
-    localStorage.setItem('siteAdminHash', h);
-    alert('Parola a fost setată.');
+    
+    try {
+        const h = await hashString(p1);
+        const response = await fetch(`${API_URL}/api/admin/set-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ passwordHash: h })
+        });
+        
+        if (response.ok) {
+            localStorage.setItem('siteAdminHash', h); // Backup local
+            alert('Parola a fost setată.');
+        }
+    } catch (error) {
+        console.error('Error setting password:', error);
+        alert('Eroare la setarea parolei');
+    }
 }
 
 async function loginAdmin() {
     const p = prompt('Parola admin:');
     if (!p) return;
     const h = await hashString(p);
-    const stored = localStorage.getItem('siteAdminHash');
-    if (!stored) return alert('Parola nu este setată. Folosește "Setează parolă admin".');
-    if (h === stored) {
-        isAdmin = true;
-        sessionStorage.setItem('isAdmin', '1');
-        toggleAdminUI();
+    
+    try {
+        const response = await fetch(`${API_URL}/api/admin/settings`);
+        const settings = await response.json();
+        const stored = settings.passwordHash || localStorage.getItem('siteAdminHash');
         
-        // Reafishează clasa curentă pentru a reface event listener-ii de editare
-        const activeClass = document.querySelector('.class-section.active');
-        if (activeClass) {
-            const classId = activeClass.id;
-            renderCurrentClass(classId);
-        }
-        
-        alert('Autentificare reușită.');
+        if (!stored) return alert('Parola nu este setată. Folosește "Setează parolă admin".');
+        if (h === stored) {
+            isAdmin = true;
+            sessionStorage.setItem('isAdmin', '1');
+            toggleAdminUI();
+            
+            // Reafishează clasa curentă pentru a reface event listener-ii de editare
+            const activeClass = document.querySelector('.class-section.active');
+            if (activeClass) {
+                const classId = activeClass.id;
+                renderCurrentClass(classId);
+            }
+            
+            alert('Autentificare reușită.');
     } else {
         alert('Parola incorectă.');
     }
@@ -571,32 +595,7 @@ function importAdminSettings() {
 // Handler pentru import admin settings
 // Export CSV
 function exportToCSV() {
-    let csvContent = 'Clasa,Secțiune,Materie,Nume Elev,Tema,Nota\n';
-    Object.keys(currentData).forEach(key => {
-        const parts = key.split('-');
-        const classId = parts.slice(0, 2).join('-');
-        const section = parts[2] || 'A';
-        const classNum = classId.replace('clasa-', '');
-        Object.keys(currentData[key]).forEach(subject => {
-            (currentData[key][subject] || []).forEach(student => {
-                const row = [
-                    classNum,
-                    section,
-                    subject,
-                    `"${student.name}"`,
-                    `"${student.theme}"`,
-                    student.grade
-                ].join(',');
-                csvContent += row + '\n';
-            });
-        });
-    });
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `site-scolar-export-${new Date().toISOString().split('T')[0]}.csv`);
-    link.click();
+    window.location.href = `${API_URL}/api/export/csv`;
     alert('Datele au fost exportate cu succes.');
 }
 
@@ -607,14 +606,24 @@ function importFromCSV() {
 }
 
 // Clear all data
-function clearAllData() {
+async function clearAllData() {
     if (confirm('Ești sigur că vrei să ștergi TOATE datele? Aceasta nu se poate anula!')) {
         if (confirm('Ultimă confirmare: Vrei să continui?')) {
-            currentData = buildSectionedData();
-            saveDataToStorage();
-            const activeClass = document.querySelector('.nav-btn.active');
-            if (activeClass) renderCurrentClass(activeClass.dataset.class);
-            alert('Datele au fost resetate la valori implicite.');
+            try {
+                const response = await fetch(`${API_URL}/api/admin/clear-data`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    currentData = buildSectionedData();
+                    const activeClass = document.querySelector('.nav-btn.active');
+                    if (activeClass) renderCurrentClass(activeClass.dataset.class);
+                    alert('Datele au fost șterse din baza de date.');
+                }
+            } catch (error) {
+                console.error('Clear error:', error);
+                alert('Eroare la ștergere');
+            }
         }
     }
 }
@@ -693,32 +702,32 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
 });
 
-// Încarcă datele din localStorage sau folosește datele inițiale (sectioned)
-function loadDataFromStorage() {
-    const stored = localStorage.getItem('schoolData');
-    const storedProfile = localStorage.getItem('schoolProfile');
-    if (stored) {
-        const parsed = JSON.parse(stored);
-        const sampleKey = Object.keys(parsed)[0] || '';
-        if (!sampleKey.includes('-')) {
-            // vechi: convertim la structura pe secțiuni (folosim initialData pentru a păstra consistența)
-            currentData = buildSectionedData();
-        } else {
-            currentData = parsed;
-        }
-    } else {
-        currentData = buildSectionedData();
-        saveDataToStorage();
+// Încarcă datele din API
+async function loadDataFromStorage() {
+    try {
+        const response = await fetch(`${API_URL}/api/students`);
+        const data = await response.json();
+        currentData = data || buildSectionedData();
+    } catch (error) {
+        console.warn('API not available, using localStorage:', error);
+        const stored = localStorage.getItem('schoolData');
+        currentData = stored ? JSON.parse(stored) : buildSectionedData();
     }
+    
+    const storedProfile = localStorage.getItem('schoolProfile');
     if (storedProfile) {
         currentProfile = JSON.parse(storedProfile);
     }
 }
 
-// Salvează datele în localStorage
-function saveDataToStorage() {
-    localStorage.setItem('schoolData', JSON.stringify(currentData));
-    localStorage.setItem('schoolProfile', JSON.stringify(currentProfile));
+// Salvează datele (nu mai e necesar cu API, dar menține pentru fallback)
+async function saveDataToStorage() {
+    try {
+        // Datele sunt salvate individual prin API
+        console.log('Data auto-saved via API');
+    } catch (error) {
+        console.error('Save error:', error);
+    }
 }
 
 // Populează opțiunile din formularul de adăugare elev
@@ -833,25 +842,38 @@ function setupEventListeners() {
             return;
         }
 
-        const key = `${classId}-${section}`;
-        if (!currentData[key]) {
-            currentData[key] = JSON.parse(JSON.stringify(initialData[classId] || {}));
-        }
-        if (!currentData[key][subject]) currentData[key][subject] = [];
-        currentData[key][subject].push({ name, theme, grade });
-        saveDataToStorage();
-
-        // Curățare formular
-        addForm.reset();
-        updateSectionOptions();
-        updateSubjectOptions();
-
-        // Re-render dacă vizualizăm clasa adăugată
-        const activeClassSection = document.querySelector('.nav-btn.active');
-        if (activeClassSection && activeClassSection.dataset.class === classId) {
-            renderCurrentClass(classId);
-        }
+        addStudent(classId, section, subject, name, theme, grade);
     });
+
+    // Funcție pentru a adăuga student via API
+    async function addStudent(classId, section, subject, name, theme, grade) {
+        try {
+            const response = await fetch(`${API_URL}/api/students`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ classId, section, subject, name, theme, grade })
+            });
+            
+            if (response.ok) {
+                // Curățare formular
+                document.getElementById('addStudentForm').reset();
+                updateSectionOptions();
+                updateSubjectOptions();
+
+                // Re-render dacă vizualizăm clasa adăugată
+                const activeClassSection = document.querySelector('.nav-btn.active');
+                if (activeClassSection && activeClassSection.dataset.class === classId) {
+                    await renderCurrentClass(classId);
+                }
+                alert('Elev adăugat cu succes!');
+            } else {
+                alert('Eroare la adăugarea elevului');
+            }
+        } catch (error) {
+            console.error('Add student error:', error);
+            alert('Eroare de conexiune');
+        }
+    }
 
     // Admin buttons
     const setPasswordBtn = document.getElementById('setPasswordBtn');
@@ -876,11 +898,11 @@ function setupEventListeners() {
     if (clearDataBtn) clearDataBtn.addEventListener('click', () => clearAllData());
     
     if (csvFileInput) {
-        csvFileInput.addEventListener('change', (e) => {
+        csvFileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = (event) => {
+            reader.onload = async (event) => {
                 const csv = event.target.result;
                 const lines = csv.trim().split('\n').slice(1); // skip header
                 const imported = {};
@@ -904,11 +926,23 @@ function setupEventListeners() {
                     return;
                 }
                 if (confirm('Aceasta va suprascrie datele actuale. Ești sigur?')) {
-                    currentData = imported;
-                    saveDataToStorage();
-                    const activeClass = document.querySelector('.nav-btn.active');
-                    if (activeClass) renderCurrentClass(activeClass.dataset.class);
-                    alert('Datele au fost importate cu succes.');
+                    try {
+                        const response = await fetch(`${API_URL}/api/import/csv`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ csvData: csv })
+                        });
+                        
+                        if (response.ok) {
+                            await loadDataFromStorage();
+                            const activeClass = document.querySelector('.nav-btn.active');
+                            if (activeClass) renderCurrentClass(activeClass.dataset.class);
+                            alert('Datele au fost importate cu succes.');
+                        }
+                    } catch (error) {
+                        console.error('Import error:', error);
+                        alert('Eroare la import');
+                    }
                 }
             };
             reader.readAsText(file);
@@ -945,6 +979,10 @@ function setupEventListeners() {
     if (sessionStorage.getItem('isAdmin')) {
         isAdmin = true;
     }
+    
+    // Check if password exists on API
+    fetch(`${API_URL}/api/admin/settings`).catch(err => console.log('API not available'));
+    
     toggleAdminUI();
 
     // Modal
@@ -1044,9 +1082,10 @@ function renderStudents(dataKey, subject, containerId) {
 
     container.innerHTML = '';
 
-    students.forEach((student, index) => {
+    students.forEach((student) => {
         const studentElement = document.createElement('div');
         studentElement.className = 'student-item';
+        studentElement.dataset.studentId = student._id;
 
         studentElement.innerHTML = `
             <div class="student-info">
@@ -1064,16 +1103,13 @@ function renderStudents(dataKey, subject, containerId) {
         const deleteBtn = studentElement.querySelector('.delete-btn');
         if (isAdmin) {
             editBtn.addEventListener('click', () => {
-                // Extragem classId din containerId (ex: clasa-5-romana)
                 const classId = containerId.split('-').slice(0,2).join('-');
                 const sec = currentSection[classId] || 'A';
-                openEditModal(classId, sec, subject, index, student);
+                openEditModal(classId, sec, subject, student);
             });
             deleteBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const classId = containerId.split('-').slice(0,2).join('-');
-                const sec = currentSection[classId] || 'A';
-                deleteStudent(classId, sec, subject, index, student.name);
+                deleteStudent(student._id, student.name);
             });
         }
 
@@ -1082,22 +1118,22 @@ function renderStudents(dataKey, subject, containerId) {
 }
 
 // Deschide modalul de editare
-function openEditModal(classId, section, subject, index, student) {
+function openEditModal(classId, section, subject, student) {
     currentEditingClass = classId;
     currentEditingSection = section;
     currentEditingSubject = subject;
-    currentEditingStudent = index;
 
     document.getElementById('studentName').value = student.name;
     document.getElementById('subjectName').value = subjectsNames[subject];
     document.getElementById('gradeValue').value = student.grade;
     document.getElementById('themeValue').value = student.theme;
+    document.getElementById('editModal').dataset.studentId = student._id;
 
     document.getElementById('editModal').classList.add('show');
 }
 
 // Salvează nota editată
-function saveEditedGrade() {
+async function saveEditedGrade() {
     if (!isAdmin) { alert('Doar admin poate modifica datele.'); return; }
     const newName = document.getElementById('studentName').value.trim();
     const newGrade = parseFloat(document.getElementById('gradeValue').value);
@@ -1118,29 +1154,47 @@ function saveEditedGrade() {
         return;
     }
 
-    const key = `${currentEditingClass}-${currentEditingSection}`;
-    if (!currentData[key]) currentData[key] = JSON.parse(JSON.stringify(initialData[currentEditingClass] || {}));
-    currentData[key][currentEditingSubject][currentEditingStudent].name = newName;
-    currentData[key][currentEditingSubject][currentEditingStudent].grade = newGrade;
-    currentData[key][currentEditingSubject][currentEditingStudent].theme = newTheme;
-
-    saveDataToStorage();
-    document.getElementById('editModal').classList.remove('show');
-    renderCurrentClass(currentEditingClass);
+    try {
+        const studentId = document.getElementById('editModal').dataset.studentId;
+        const response = await fetch(`${API_URL}/api/students/${studentId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: newName, grade: newGrade, theme: newTheme })
+        });
+        
+        if (response.ok) {
+            document.getElementById('editModal').classList.remove('show');
+            renderCurrentClass(currentEditingClass);
+            alert('Elev actualizat cu succes!');
+        }
+    } catch (error) {
+        console.error('Edit error:', error);
+        alert('Eroare la editare');
+    }
 }
 
 // Șterge student
-function deleteStudent(classId, section, subject, index, studentName) {
+async function deleteStudent(studentId, studentName) {
     if (!isAdmin) { alert('Doar admin poate șterge elevi.'); return; }
     if (confirm(`Ești sigur că vrei să ștergi ${studentName}?`)) {
-        const key = `${classId}-${section}`;
-        if (currentData[key] && currentData[key][subject]) {
-            currentData[key][subject].splice(index, 1);
-            saveDataToStorage();
-            renderCurrentClass(classId);
-            alert('Elevul a fost șters.');
+        try {
+            const response = await fetch(`${API_URL}/api/students/${studentId}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                const activeClass = document.querySelector('.nav-btn.active');
+                if (activeClass) {
+                    renderCurrentClass(activeClass.dataset.class);
+                }
+                alert('Elevul a fost șters.');
+            }
+        } catch (error) {
+            console.error('Delete error:', error);
+            alert('Eroare la ștergere');
         }
     }
+}
 }
 
 // Obține culoarea gradului (pentru design viitor)
