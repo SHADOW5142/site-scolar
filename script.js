@@ -987,15 +987,22 @@ function renderStudents(dataKey, subject, containerId) {
             </div>
             <div class="grade-badge">${student.grade}</div>
             <button class="edit-btn">✏️ Editează</button>
+            <button class="delete-btn">🗑️ Șterge</button>
         `;
 
         const editBtn = studentElement.querySelector('.edit-btn');
+        const deleteBtn = studentElement.querySelector('.delete-btn');
         if (isAdmin) {
             editBtn.addEventListener('click', () => {
                 // Extragem classId din containerId (ex: clasa-5-romana)
                 const classId = containerId.split('-').slice(0,2).join('-');
                 const sec = currentSection[classId] || 'A';
                 openEditModal(classId, sec, subject, index, student);
+            });
+            deleteBtn.addEventListener('click', () => {
+                const classId = containerId.split('-').slice(0,2).join('-');
+                const sec = currentSection[classId] || 'A';
+                deleteStudent(classId, sec, subject, index, student.name);
             });
         }
 
@@ -1049,6 +1056,20 @@ function saveEditedGrade() {
     saveDataToStorage();
     document.getElementById('editModal').classList.remove('show');
     renderCurrentClass(currentEditingClass);
+}
+
+// Șterge student
+function deleteStudent(classId, section, subject, index, studentName) {
+    if (!isAdmin) { alert('Doar admin poate șterge elevi.'); return; }
+    if (confirm(`Ești sigur că vrei să ștergi ${studentName}?`)) {
+        const key = `${classId}-${section}`;
+        if (currentData[key] && currentData[key][subject]) {
+            currentData[key][subject].splice(index, 1);
+            saveDataToStorage();
+            renderCurrentClass(classId);
+            alert('Elevul a fost șters.');
+        }
+    }
 }
 
 // Obține culoarea gradului (pentru design viitor)
