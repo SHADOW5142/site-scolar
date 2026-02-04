@@ -182,9 +182,23 @@ body {
 }
 .admin-panel {
     display: flex;
+    flex-direction: column;
     gap: 10px;
     justify-content: center;
+    align-items: center;
     margin: 0 0 12px 0;
+}
+.admin-auth, .admin-backup {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.btn-danger {
+    background: #ff6b6b !important;
+}
+.btn-danger:hover {
+    background: #ff5252 !important;
 }
 
 /* admin-only elements are hidden unless body has .admin */

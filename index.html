@@ -28,10 +28,18 @@
 
         <!-- Panou Admin -->
         <div class="admin-panel">
-            <button id="setPasswordBtn" class="btn">Setează parolă admin</button>
-            <button id="loginBtn" class="btn">Loghează-te</button>
-            <button id="logoutBtn" class="btn" style="display:none;">Deloghează</button>
-            <button id="changePasswordBtn" class="btn" style="display:none;">Schimbă parola</button>
+            <div class="admin-auth">
+                <button id="setPasswordBtn" class="btn">Setează parolă admin</button>
+                <button id="loginBtn" class="btn">Loghează-te</button>
+                <button id="logoutBtn" class="btn" style="display:none;">Deloghează</button>
+                <button id="changePasswordBtn" class="btn" style="display:none;">Schimbă parola</button>
+            </div>
+            <div class="admin-backup" style="display:none;">
+                <button id="exportCsvBtn" class="btn">📥 Exportă CSV</button>
+                <button id="importCsvBtn" class="btn">📤 Importă CSV</button>
+                <button id="clearDataBtn" class="btn btn-danger">🗑️ Șterge date</button>
+                <input type="file" id="csvFileInput" accept=".csv" style="display:none;">
+            </div>
         </div>
 
         <!-- Panou Adaugare Elev (vizibil doar pentru admin) -->

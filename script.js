@@ -531,6 +531,56 @@ function logoutAdmin() {
     toggleAdminUI();
 }
 
+// Export CSV
+function exportToCSV() {
+    let csvContent = 'Clasa,Secțiune,Materie,Nume Elev,Tema,Nota\n';
+    Object.keys(currentData).forEach(key => {
+        const parts = key.split('-');
+        const classId = parts.slice(0, 2).join('-');
+        const section = parts[2] || 'A';
+        const classNum = classId.replace('clasa-', '');
+        Object.keys(currentData[key]).forEach(subject => {
+            (currentData[key][subject] || []).forEach(student => {
+                const row = [
+                    classNum,
+                    section,
+                    subject,
+                    `"${student.name}"`,
+                    `"${student.theme}"`,
+                    student.grade
+                ].join(',');
+                csvContent += row + '\n';
+            });
+        });
+    });
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `site-scolar-export-${new Date().toISOString().split('T')[0]}.csv`);
+    link.click();
+    alert('Datele au fost exportate cu succes.');
+}
+
+// Import CSV
+function importFromCSV() {
+    const input = document.getElementById('csvFileInput');
+    input.click();
+}
+
+// Clear all data
+function clearAllData() {
+    if (confirm('Ești sigur că vrei să ștergi TOATE datele? Aceasta nu se poate anula!')) {
+        if (confirm('Ultimă confirmare: Vrei să continui?')) {
+            currentData = buildSectionedData();
+            saveDataToStorage();
+            const activeClass = document.querySelector('.nav-btn.active');
+            if (activeClass) renderCurrentClass(activeClass.dataset.class);
+            alert('Datele au fost resetate la valori implicite.');
+        }
+    }
+}
+
 async function changeAdminPassword() {
     const stored = localStorage.getItem('siteAdminHash');
     if (!stored) return alert('Parola nu este setată.');
@@ -553,18 +603,24 @@ function toggleAdminUI() {
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const changeBtn = document.getElementById('changePasswordBtn');
+    const adminAuth = document.querySelector('.admin-auth');
+    const adminBackup = document.querySelector('.admin-backup');
     if (isAdmin) {
         body.classList.add('admin');
+        adminAuth.style.display = 'flex';
         setBtn.style.display = 'none';
         loginBtn.style.display = 'none';
         logoutBtn.style.display = 'inline-block';
         changeBtn.style.display = 'inline-block';
+        adminBackup.style.display = 'flex';
     } else {
         body.classList.remove('admin');
+        adminAuth.style.display = 'flex';
         setBtn.style.display = localStorage.getItem('siteAdminHash') ? 'none' : 'inline-block';
         loginBtn.style.display = localStorage.getItem('siteAdminHash') ? 'inline-block' : 'none';
         logoutBtn.style.display = 'none';
         changeBtn.style.display = 'none';
+        adminBackup.style.display = 'none';
     }
 }
 
@@ -764,10 +820,58 @@ function setupEventListeners() {
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const changePasswordBtn = document.getElementById('changePasswordBtn');
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
+    const importCsvBtn = document.getElementById('importCsvBtn');
+    const clearDataBtn = document.getElementById('clearDataBtn');
+    const csvFileInput = document.getElementById('csvFileInput');
+    
     if (setPasswordBtn) setPasswordBtn.addEventListener('click', () => setAdminPassword());
     if (loginBtn) loginBtn.addEventListener('click', () => loginAdmin());
     if (logoutBtn) logoutBtn.addEventListener('click', () => logoutAdmin());
     if (changePasswordBtn) changePasswordBtn.addEventListener('click', () => changeAdminPassword());
+    if (exportCsvBtn) exportCsvBtn.addEventListener('click', () => exportToCSV());
+    if (importCsvBtn) importCsvBtn.addEventListener('click', () => importFromCSV());
+    if (clearDataBtn) clearDataBtn.addEventListener('click', () => clearAllData());
+    
+    if (csvFileInput) {
+        csvFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const csv = event.target.result;
+                const lines = csv.trim().split('\n').slice(1); // skip header
+                const imported = {};
+                lines.forEach(line => {
+                    const cols = line.match(/(?:"[^"]*"|[^,])+/g) || [];
+                    if (cols.length < 6) return;
+                    const classNum = cols[0].trim();
+                    const section = cols[1].trim();
+                    const subject = cols[2].trim();
+                    const name = cols[3].replace(/"/g, '').trim();
+                    const theme = cols[4].replace(/"/g, '').trim();
+                    const grade = parseFloat(cols[5].trim());
+                    if (!name || isNaN(grade)) return;
+                    const key = `clasa-${classNum}-${section}`;
+                    if (!imported[key]) imported[key] = {};
+                    if (!imported[key][subject]) imported[key][subject] = [];
+                    imported[key][subject].push({ name, theme, grade });
+                });
+                if (Object.keys(imported).length === 0) {
+                    alert('CSV-ul nu conține date valide.');
+                    return;
+                }
+                if (confirm('Aceasta va suprascrie datele actuale. Ești sigur?')) {
+                    currentData = imported;
+                    saveDataToStorage();
+                    const activeClass = document.querySelector('.nav-btn.active');
+                    if (activeClass) renderCurrentClass(activeClass.dataset.class);
+                    alert('Datele au fost importate cu succes.');
+                }
+            };
+            reader.readAsText(file);
+        });
+    }
 
     // restore admin session if present
     if (sessionStorage.getItem('isAdmin')) {
