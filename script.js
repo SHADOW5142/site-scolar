@@ -982,12 +982,14 @@ function renderStudents(dataKey, subject, containerId) {
 
         studentElement.innerHTML = `
             <div class="student-info">
-                <div class="student-name">${student.name}</div>
+                <div class="student-name">
+                    ${student.name}
+                    <button class="delete-btn">🗑️</button>
+                </div>
                 <div class="theme-name">Tema: ${student.theme}</div>
             </div>
             <div class="grade-badge">${student.grade}</div>
             <button class="edit-btn">✏️ Editează</button>
-            <button class="delete-btn">🗑️ Șterge</button>
         `;
 
         const editBtn = studentElement.querySelector('.edit-btn');
@@ -999,7 +1001,8 @@ function renderStudents(dataKey, subject, containerId) {
                 const sec = currentSection[classId] || 'A';
                 openEditModal(classId, sec, subject, index, student);
             });
-            deleteBtn.addEventListener('click', () => {
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 const classId = containerId.split('-').slice(0,2).join('-');
                 const sec = currentSection[classId] || 'A';
                 deleteStudent(classId, sec, subject, index, student.name);
