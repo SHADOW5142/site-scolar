@@ -552,8 +552,12 @@ async function loginAdmin() {
             }
             
             alert('Autentificare reușită.');
-    } else {
-        alert('Parola incorectă.');
+        } else {
+            alert('Parola incorectă.');
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        alert('Eroare la autentificare');
     }
 }
 
@@ -615,10 +619,8 @@ async function clearAllData() {
                 });
                 
                 if (response.ok) {
-                    currentData = buildSectionedData();
-                    const activeClass = document.querySelector('.nav-btn.active');
-                    if (activeClass) renderCurrentClass(activeClass.dataset.class);
                     alert('Datele au fost șterse din baza de date.');
+                    setTimeout(() => location.reload(), 1500);
                 }
             } catch (error) {
                 console.error('Clear error:', error);
@@ -695,11 +697,14 @@ function buildSectionedData() {
 }
 
 // Inițializare
+console.log('🚀 Script loaded!');
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('✅ DOMContentLoaded fired!');
     loadDataFromStorage();
     populateAddFormOptions();
     renderCurrentClass('clasa-5');
     setupEventListeners();
+    console.log('✅ Event listeners setup complete!');
 });
 
 // Încarcă datele din API
@@ -781,9 +786,15 @@ function updateSubjectOptions() {
 
 // Configurează ascultatori de Evenimente
 function setupEventListeners() {
+    console.log('📋 Setting up event listeners...');
+    
     // Butoanele de navigație
-    document.querySelectorAll('.nav-btn').forEach(btn => {
+    const navBtns = document.querySelectorAll('.nav-btn');
+    console.log('🔘 Found', navBtns.length, 'nav buttons');
+    
+    navBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
+            console.log('🖱️ Nav button clicked:', e.target.dataset.class);
             const classId = e.target.dataset.class;
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             e.target.classList.add('active');
@@ -855,17 +866,8 @@ function setupEventListeners() {
             });
             
             if (response.ok) {
-                // Curățare formular
-                document.getElementById('addStudentForm').reset();
-                updateSectionOptions();
-                updateSubjectOptions();
-
-                // Re-render dacă vizualizăm clasa adăugată
-                const activeClassSection = document.querySelector('.nav-btn.active');
-                if (activeClassSection && activeClassSection.dataset.class === classId) {
-                    await renderCurrentClass(classId);
-                }
                 alert('Elev adăugat cu succes!');
+                setTimeout(() => location.reload(), 1500);
             } else {
                 alert('Eroare la adăugarea elevului');
             }
@@ -876,6 +878,7 @@ function setupEventListeners() {
     }
 
     // Admin buttons
+    console.log('🔐 Setting up admin buttons...');
     const setPasswordBtn = document.getElementById('setPasswordBtn');
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
@@ -885,10 +888,12 @@ function setupEventListeners() {
     const clearDataBtn = document.getElementById('clearDataBtn');
     const csvFileInput = document.getElementById('csvFileInput');
     
-    if (setPasswordBtn) setPasswordBtn.addEventListener('click', () => setAdminPassword());
-    if (loginBtn) loginBtn.addEventListener('click', () => loginAdmin());
-    if (logoutBtn) logoutBtn.addEventListener('click', () => logoutAdmin());
-    if (changePasswordBtn) changePasswordBtn.addEventListener('click', () => changeAdminPassword());
+    console.log('🔑 Admin buttons found:', { setPasswordBtn: !!setPasswordBtn, loginBtn: !!loginBtn });
+    
+    if (setPasswordBtn) setPasswordBtn.addEventListener('click', () => { console.log('🔑 Set password clicked'); setAdminPassword(); });
+    if (loginBtn) loginBtn.addEventListener('click', () => { console.log('🔑 Login clicked'); loginAdmin(); });
+    if (logoutBtn) logoutBtn.addEventListener('click', () => { console.log('🔑 Logout clicked'); logoutAdmin(); });
+    if (changePasswordBtn) changePasswordBtn.addEventListener('click', () => { console.log('🔑 Change password clicked'); changeAdminPassword(); });
     if (exportCsvBtn) exportCsvBtn.addEventListener('click', () => exportToCSV());
     if (importCsvBtn) importCsvBtn.addEventListener('click', () => importFromCSV());
     const exportAdminBtn = document.getElementById('exportAdminBtn');
@@ -934,10 +939,8 @@ function setupEventListeners() {
                         });
                         
                         if (response.ok) {
-                            await loadDataFromStorage();
-                            const activeClass = document.querySelector('.nav-btn.active');
-                            if (activeClass) renderCurrentClass(activeClass.dataset.class);
                             alert('Datele au fost importate cu succes.');
+                            setTimeout(() => location.reload(), 1500);
                         }
                     } catch (error) {
                         console.error('Import error:', error);
@@ -1164,8 +1167,8 @@ async function saveEditedGrade() {
         
         if (response.ok) {
             document.getElementById('editModal').classList.remove('show');
-            renderCurrentClass(currentEditingClass);
             alert('Elev actualizat cu succes!');
+            setTimeout(() => location.reload(), 1500);
         }
     } catch (error) {
         console.error('Edit error:', error);
@@ -1183,18 +1186,14 @@ async function deleteStudent(studentId, studentName) {
             });
             
             if (response.ok) {
-                const activeClass = document.querySelector('.nav-btn.active');
-                if (activeClass) {
-                    renderCurrentClass(activeClass.dataset.class);
-                }
                 alert('Elevul a fost șters.');
+                setTimeout(() => location.reload(), 1500);
             }
         } catch (error) {
             console.error('Delete error:', error);
             alert('Eroare la ștergere');
         }
     }
-}
 }
 
 // Obține culoarea gradului (pentru design viitor)
